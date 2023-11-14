@@ -1,0 +1,66 @@
+from flask import Flask, render_template, request, redirect, url_for, flash
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:fitness.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
+    goal_duration = db.Column(db.Integer, default=0)
+
+class Workout(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    activity = db.Column(db.String(100), nullable=False)
+    duration = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+# Intentional mistake: 'BusinessLogic' class is not defined
+class BusinessLogic:
+    @staticmethod
+    def calculate_fitness_metrics(user):
+        total_duration = sum(workout.duration for workout in user.workouts)
+        average_duration = total_duration / len(user.workouts) if len(user.workouts) > 0 else 0
+        return total_duration, average_duration
+
+    @staticmethod
+    def update_fitness_goals(user):
+        total_duration, average_duration = BusinessLogic.calculate_fitness_metrics(user)
+        user.goal_duration = total_duration * 1.2  # Set a goal to be 120% of total duration
+
+    @staticmethod
+    def analyze_progress(user):
+        total_duration, average_duration = BusinessLogic.calculate_fitness_metrics(user)
+        goal_progress = total_duration / user.goal_duration * 100
+        return goal_progress
+
+# Intentional mistake: 'metrics_goals' is not instantiated
+@app.route('/fitness_metrics')
+@login_required
+def fitness_metrics():
+    try:
+        metrics_goals = BusinessLogic()  # Intentional mistake: 'BusinessLogic' is not defined
+
+        metrics_goals.update_fitness_goals(current_user)
+
+        goal_progress = metrics_goals.analyze_progress(current_user)
+
+        return render_template('fitness_metrics.html', goal_progress=goal_progress)
+
+    except Exception as e:
+        flash(f'An error occurred: {str(e)}', 'danger')
+        return redirect(url_for('dashboard'))
+
+if __name__ == '__main__':
+    db.create_all()
+    app.run(debug=True)
+
+

@@ -1,0 +1,49 @@
+<!-- templates/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Fitness Tracker App</title>
+</head>
+<body>
+    <!-- User Authentication/Login Page -->
+    <div id="login-page" class="page">
+        <h1>Login</h1>
+        <form id="login-form">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <button type="button" onclick="login()">Login</button>
+        </form>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard-page" class="page hidden">
+        <h1>Dashboard</h1>
+        <div id="fitness-data">
+            <!-- Display fitness data here -->
+        </div>
+        <div id="goal-progress-chart">
+            <!-- Display goal progress chart here -->
+        </div>
+    </div>
+
+    <!-- Forms for entering/updating fitness activities -->
+    <div id="forms-page" class="page hidden">
+        <h1>Enter/Update Fitness Activities</h1>
+        <form id="workout-form">
+            <label for="activity">Activity:</label>
+            <input type="text" id="activity" name="activity" required>
+            <label for="duration">Duration (minutes):</label>
+            <input type="number" id="duration" name="duration" required>
+            <button type="button" onclick="submitWorkout()">Submit Workout</button>
+        </form>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
